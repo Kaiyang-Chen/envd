@@ -310,9 +310,10 @@ func (g generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 		baseStage,
 		aptStage,
 	}, llb.WithCustomName("[internal] merge conda insatll and base image"))
+	logrus.Debugf("merged done")
 	var merged llb.State
 	// Use custom logic when image is specified.
-	if g.Image == nil {
+	if g.Image != nil {
 		merged, err = g.compileCustomPython(merge)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile custom python image")

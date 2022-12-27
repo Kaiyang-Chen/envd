@@ -176,6 +176,7 @@ func (g generalGraph) compileSSHD(root llb.State) llb.State {
 }
 
 func (g *generalGraph) aptCondaBase() (llb.State, error) {
+	logrus.Debugf("install apt and conda base")
 	langBase := g.preparePythonBase(llb.Image(types.PythonBaseImage))
 	// Install conda first.
 	condaStage, err := g.installConda(langBase)
