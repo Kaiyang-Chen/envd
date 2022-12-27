@@ -175,6 +175,23 @@ func (g generalGraph) compileSSHD(root llb.State) llb.State {
 	return sshd
 }
 
+func (g *generalGraph) aptCondaBase() (llb.State, error) {
+	langBase := g.preparePythonBase(llb.Image(types.PythonBaseImage))
+	// Install conda first.
+	condaStage, err := g.installConda(langBase)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to install conda")
+	}
+	supervisor := g.installHorust(condaStage)
+	sshdStage := g.compileSSHD(supervisor)
+	source, err := g.compileExtraSource(sshdStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get extra sources")
+	}
+	final := g.compileUserGroup(source)
+	return final, nil
+}
+
 func (g *generalGraph) compileBase() (llb.State, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"os":       g.OS,
@@ -213,20 +230,7 @@ func (g *generalGraph) compileBase() (llb.State, error) {
 	} else {
 		base = g.compileCUDAPackages("nvidia/cuda")
 	}
-
-	// Install conda first.
-	condaStage, err := g.installConda(base)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to install conda")
-	}
-	supervisor := g.installHorust(condaStage)
-	sshdStage := g.compileSSHD(supervisor)
-	source, err := g.compileExtraSource(sshdStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get extra sources")
-	}
-	final := g.compileUserGroup(source)
-	return final, nil
+	return base, nil
 }
 
 // customBase get the image and the set the image metadata to graph.

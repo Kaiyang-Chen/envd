@@ -19,10 +19,12 @@ import (
 	"strings"
 
 	"github.com/moby/buildkit/client/llb"
+	"github.com/sirupsen/logrus"
 )
 
 // nolint:unparam
 func (g generalGraph) compileCustomPython(baseStage llb.State) (llb.State, error) {
+	logrus.Debugf("custom python")
 	aptStage := g.compileUbuntuAPT(baseStage)
 	pypiMirrorStage := g.compilePyPIIndex(aptStage)
 	systemStage := g.compileCustomSystemPackages(pypiMirrorStage)
@@ -35,7 +37,7 @@ func (g generalGraph) compileCustomPyPIPackages(root llb.State) llb.State {
 	if len(g.PyPIPackages) == 0 {
 		return root
 	}
-
+	logrus.Debugf("pip install")
 	cacheDir := "/home/root/.cache"
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 	cache := root.File(llb.Mkdir("/cache", 0755, llb.WithParents(true)),

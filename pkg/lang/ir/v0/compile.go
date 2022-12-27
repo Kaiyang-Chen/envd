@@ -298,37 +298,44 @@ func (g generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 	}).Debug("compile LLB")
 
 	// TODO(gaocegege): Support more OS and langs.
-	aptStage, err := g.compileBase()
+	baseStage, err := g.compileBase()
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get the base image")
 	}
+	aptStage, err := g.aptCondaBase()
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get the conda image")
+	}
+	merge := llb.Merge([]llb.State{
+		baseStage,
+		aptStage,
+	}, llb.WithCustomName("[internal] merge conda insatll and base image"))
 	var merged llb.State
 	// Use custom logic when image is specified.
-	if g.Image != nil {
-		merged, err = g.compileCustomPython(aptStage)
+	if g.Image == nil {
+		merged, err = g.compileCustomPython(merge)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile custom python image")
 		}
 	} else {
 		switch g.Language.Name {
 		case "r":
-			merged, err = g.compileRLang(aptStage)
+			merged, err = g.compileRLang(merge)
 			if err != nil {
 				return llb.State{}, errors.Wrap(err, "failed to compile r language")
 			}
 		case "python":
-			merged, err = g.compilePython(aptStage)
+			merged, err = g.compilePython(merge)
 			if err != nil {
 				return llb.State{}, errors.Wrap(err, "failed to compile python")
 			}
 		case "julia":
-			merged, err = g.compileJulia(aptStage)
+			merged, err = g.compileJulia(merge)
 			if err != nil {
 				return llb.State{}, errors.Wrap(err, "failed to compile julia")
 			}
 		}
 	}
-
 	prompt := g.compilePrompt(merged)
 	copy := g.compileCopy(prompt)
 	// TODO(gaocegege): Support order-based exec.
