@@ -311,7 +311,7 @@ func (g generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 			return llb.State{}, errors.Wrap(err, "failed to compile custom python image")
 		}
 	} else {
-		aptStage, err := g.aptCondaBase()
+		aptStage, err := g.compileCondaBase()
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to get the conda image")
 		}
