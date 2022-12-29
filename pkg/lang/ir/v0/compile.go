@@ -302,23 +302,26 @@ func (g generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get the base image")
 	}
-	aptStage, err := g.aptCondaBase()
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get the conda image")
-	}
-	merge := llb.Merge([]llb.State{
-		baseStage,
-		aptStage,
-	}, llb.WithCustomName("[internal] merge conda insatll and base image"))
-	logrus.Debugf("merged done")
+
 	var merged llb.State
 	// Use custom logic when image is specified.
 	if g.Image != nil {
-		merged, err = g.compileCustomPython(merge)
+		merged, err = g.compileCustomPython(baseStage)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile custom python image")
 		}
 	} else {
+		aptStage, err := g.aptCondaBase()
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to get the conda image")
+		}
+		merge := llb.Merge([]llb.State{
+			baseStage,
+			llb.Diff(aptStage, llb.Image(types.PythonBaseImage),
+				llb.WithCustomName("[internal] diff with fixed imagine")),
+		}, llb.WithCustomName("[internal] merge conda insatll and base image"))
+		logrus.Debugf("merged done")
+
 		switch g.Language.Name {
 		case "r":
 			merged, err = g.compileRLang(merge)
