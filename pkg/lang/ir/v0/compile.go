@@ -311,17 +311,21 @@ func (g generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 			return llb.State{}, errors.Wrap(err, "failed to compile custom python image")
 		}
 	} else {
-		aptStage, err := g.compileCondaBase()
+		condaBase := g.preparePythonBase(llb.Image(types.PythonBaseImage))
+		aptStage, err := g.compileCondaBase(condaBase)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to get the conda image")
 		}
-		merge := llb.Merge([]llb.State{
-			baseStage,
-			llb.Diff(aptStage, llb.Image(types.PythonBaseImage),
-				llb.WithCustomName("[internal] diff with fixed imagine")),
-		}, llb.WithCustomName("[internal] merge conda insatll and base image"))
-		logrus.Debugf("merged done")
+		var merge llb.State
+		if g.Language.Name != "python" {
+			merge = llb.Merge([]llb.State{
+				baseStage,
+				llb.Diff(condaBase, aptStage,
+					llb.WithCustomName("[internal] diff with fixed image")),
+			}, llb.WithCustomName("[internal] merge conda insatll and base image"))
+			logrus.Debugf("merged done")
 
+		}
 		switch g.Language.Name {
 		case "r":
 			merged, err = g.compileRLang(merge)
@@ -329,7 +333,7 @@ func (g generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 				return llb.State{}, errors.Wrap(err, "failed to compile r language")
 			}
 		case "python":
-			merged, err = g.compilePython(merge)
+			merged, err = g.compilePython(baseStage, aptStage, condaBase)
 			if err != nil {
 				return llb.State{}, errors.Wrap(err, "failed to compile python")
 			}

@@ -45,45 +45,50 @@ func (g generalGraph) getAppropriatePythonVersion() (string, error) {
 	return "", errors.Errorf("python version %s is not supported", version)
 }
 
-func (g generalGraph) compilePython(baseStage llb.State) (llb.State, error) {
+func (g generalGraph) compilePython(baseStage llb.State, condaStage llb.State, condaBaseStage llb.State) (llb.State, error) {
 	if err := g.compileJupyter(); err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
 	}
-	aptStage := g.compileUbuntuAPT(baseStage)
-	systemStage := g.compileSystemPackages(aptStage)
+	aptStage := g.compileUbuntuAPT(condaStage)
+	// systemStage := g.compileSystemPackages(aptStage)
 
-	condaEnvStage, err := g.compileCondaEnvironment(baseStage)
+	condaEnvStage, err := g.compileCondaEnvironment(condaStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile conda environment")
 	}
 
 	// Conda affects shell and python, thus we cannot do it in parallel.
-	shellStage, err := g.compileShell(baseStage)
+	shellStage, err := g.compileShell(condaStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile shell")
 	}
 
-	diffCondaEnvStage := llb.Diff(baseStage, condaEnvStage,
+	diffCondaEnvStage := llb.Diff(condaStage, condaEnvStage,
 		llb.WithCustomName("[internal] conda python environment"))
-	diffSystemStage := llb.Diff(baseStage, systemStage,
+	diffSystemStage := llb.Diff(condaStage, aptStage,
 		llb.WithCustomName("[internal] install system packages"))
-	diffShellStage := llb.Diff(baseStage, shellStage,
+	diffShellStage := llb.Diff(condaStage, shellStage,
 		llb.WithCustomNamef("[internal] configure shell %s", g.Shell))
 	prePythonStage := llb.Merge([]llb.State{
 		diffSystemStage,
 		diffCondaEnvStage,
 		diffShellStage,
-		baseStage}, llb.WithCustomName("pre-python stage"))
+		condaStage}, llb.WithCustomName("pre-python stage"))
 
-	condaChannelStage := g.compileCondaChannel(prePythonStage)
+	mergeCustomStage := llb.Merge([]llb.State{
+		baseStage,
+		llb.Diff(condaBaseStage, prePythonStage,
+			llb.WithCustomName("[internal] diff with fixed image"))}, llb.WithCustomName("merge with custom image"))
+	systemStage := g.compileSystemPackages(mergeCustomStage)
+	condaChannelStage := g.compileCondaChannel(systemStage)
 
-	condaStage := llb.Diff(prePythonStage,
+	condaInstallStage := llb.Diff(systemStage,
 		g.compileCondaPackages(condaChannelStage),
 		llb.WithCustomName("[internal] install conda packages"))
 
-	pypiMirrorStage := g.compilePyPIIndex(prePythonStage)
+	pypiMirrorStage := g.compilePyPIIndex(systemStage)
 
-	pypiStage := llb.Diff(prePythonStage,
+	pypiStage := llb.Diff(systemStage,
 		g.compilePyPIPackages(pypiMirrorStage),
 		llb.WithCustomName("[internal] install PyPI packages"))
 
@@ -91,22 +96,22 @@ func (g generalGraph) compilePython(baseStage llb.State) (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
 	}
-	sshStage, err := g.copySSHKey(prePythonStage)
+	sshStage, err := g.copySSHKey(systemStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
 	}
-	diffSSHStage := llb.Diff(prePythonStage, sshStage,
+	diffSSHStage := llb.Diff(systemStage, sshStage,
 		llb.WithCustomName("[internal] install ssh key"))
 
 	var merged llb.State
 	if vscodeStage != nil {
 		merged = llb.Merge([]llb.State{
-			prePythonStage, condaStage, pypiStage,
+			systemStage, condaInstallStage, pypiStage,
 			diffSSHStage, *vscodeStage,
 		}, llb.WithCustomName("[internal] generating the image"))
 	} else {
 		merged = llb.Merge([]llb.State{
-			prePythonStage, condaStage,
+			systemStage, condaInstallStage,
 			diffSSHStage, pypiStage,
 		}, llb.WithCustomName("[internal] generating the image"))
 	}

@@ -175,11 +175,10 @@ func (g generalGraph) compileSSHD(root llb.State) llb.State {
 	return sshd
 }
 
-func (g *generalGraph) compileCondaBase() (llb.State, error) {
+func (g *generalGraph) compileCondaBase(base llb.State) (llb.State, error) {
 	logrus.Debugf("install conda base")
-	langBase := llb.Image(types.PythonBaseImage)
 	// Install conda first.
-	condaStage, err := g.installConda(langBase)
+	condaStage, err := g.installConda(base)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to install conda")
 	}
