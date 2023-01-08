@@ -296,7 +296,8 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 	// prepare dev env: stable operations should be done here to make it cache friendly
 	if g.Dev {
 		dev := g.compileDevPackages(base)
-		sshd := g.compileSSHD(dev)
+		starship := g.compileStarship(dev)
+		sshd := g.compileSSHD(starship)
 		horust := g.installHorust(sshd)
 		userGroup := g.compileUserGroup(horust)
 		base = userGroup

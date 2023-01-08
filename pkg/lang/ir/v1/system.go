@@ -270,6 +270,32 @@ func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 	return pack
 }
 
+func (g *generalGraph) compileStarship(root llb.State) llb.State {
+	base := g.compileFixBase()
+	var sb strings.Builder
+	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
+	run := base.Run(llb.Shlexf(`bash -c "%s"`, sb.String()),
+		llb.WithCustomName("[internal] install starship"))
+	merge := llb.Merge([]llb.State{
+		root,
+		llb.Diff(base, run.Root(), llb.WithCustomName("[internal] starship binary")),
+	}, llb.WithCustomName("[internal] merge starship installation"))
+	sb.Reset()
+	findDir := fileutil.DefaultHomeDir
+	if g.Shell == shellZSH {
+		sb.WriteString("echo \"eval \\\"$(starship init zsh)\\\"\" >> ")
+		sb.WriteString(findDir(".zshrc"))
+	} else if g.Shell == shellBASH {
+		sb.WriteString("echo \"eval \\\"$(starship init bash)\\\"\" >> ")
+		sb.WriteString(findDir(".bashrc"))
+	}
+
+	run = merge.Run(llb.Shlexf(`bash -c "%s"`, sb.String()),
+		llb.WithCustomName("[internal] config starship into rc file"))
+
+	return run.Root()
+}
+
 func (g *generalGraph) compileDevPackages(root llb.State) llb.State {
 	for _, env := range types.BaseEnvironment {
 		root = root.AddEnv(env.Name, env.Value)
@@ -282,7 +308,7 @@ func (g *generalGraph) compileDevPackages(root llb.State) llb.State {
 	sb.WriteString(strings.Join(types.BaseAptPackage, " "))
 	sb.WriteString("&& rm -rf /var/lib/apt/lists/* ")
 	// shell prompt
-	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
+	// sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
 	sb.WriteString("&& locale-gen en_US.UTF-8")
 
 	run := root.Run(llb.Shlexf(`bash -c "%s"`, sb.String()),

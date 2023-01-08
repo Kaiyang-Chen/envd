@@ -104,6 +104,17 @@ func remove(s []string, r string) []string {
 	return s
 }
 
+func (g generalGraph) compileFixBase() llb.State {
+	base, _ := g.compileBaseImage()
+	if g.Dev {
+		dev := g.compileDevPackages(base)
+		userGroup := g.compileUserGroup(dev)
+		base = userGroup
+	}
+	lang, _ := g.compileLanguage(base)
+	return lang
+}
+
 func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 	if len(g.PyPIPackages) == 0 && g.RequirementsFile == nil && len(g.PythonWheels) == 0 {
 		return root
@@ -120,15 +131,7 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 	if len(g.PyPIPackages) != 0 {
 		for _, packages := range g.PyPIPackages {
 			if len(packages) != len(remove(packages, "torch")) {
-				base, _ := g.compileBaseImage()
-				if g.Dev {
-					dev := g.compileDevPackages(base)
-					sshd := g.compileSSHD(dev)
-					horust := g.installHorust(sshd)
-					userGroup := g.compileUserGroup(horust)
-					base = userGroup
-				}
-				lang, _ := g.compileLanguage(base)
+				lang := g.compileFixBase()
 				packages = remove(packages, "torch")
 				command := fmt.Sprintf("python -m pip install torch")
 				run := lang.
