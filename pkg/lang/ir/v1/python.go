@@ -129,7 +129,7 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 					base = userGroup
 				}
 				lang, _ := g.compileLanguage(base)
-				packages = remove(packages, "pytorch")
+				packages = remove(packages, "torch")
 				command := fmt.Sprintf("python -m pip install torch")
 				run := lang.
 					Run(llb.Shlex(command), llb.WithCustomNamef("[internal] pip install pytorch"))
