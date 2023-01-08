@@ -22,7 +22,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
-
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/types"
 )
@@ -96,6 +95,15 @@ func (g generalGraph) compileAlternative(root llb.State) llb.State {
 	return run.Root()
 }
 
+func remove(s []string, r string) []string {
+	for i, v := range s {
+		if v == r {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
+}
+
 func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 	if len(g.PyPIPackages) == 0 && g.RequirementsFile == nil && len(g.PythonWheels) == 0 {
 		return root
@@ -111,6 +119,29 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 
 	if len(g.PyPIPackages) != 0 {
 		for _, packages := range g.PyPIPackages {
+			if len(packages) != len(remove(packages, "torch")) {
+				base, _ := g.compileBaseImage()
+				if g.Dev {
+					dev := g.compileDevPackages(base)
+					sshd := g.compileSSHD(dev)
+					horust := g.installHorust(sshd)
+					userGroup := g.compileUserGroup(horust)
+					base = userGroup
+				}
+				lang, _ := g.compileLanguage(base)
+				packages = remove(packages, "pytorch")
+				command := fmt.Sprintf("python -m pip install torch")
+				run := lang.
+					Run(llb.Shlex(command), llb.WithCustomNamef("[internal] pip install pytorch"))
+				run.AddMount(cacheDir, cache,
+					llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
+				tmpRoot := run.Root()
+				logrus.Debug("downloading pytorch seperatly")
+				root = llb.Merge([]llb.State{
+					root,
+					llb.Diff(lang, tmpRoot, llb.WithCustomName("[internal] prepare language")),
+				}, llb.WithCustomName("[internal] install pytorch seperately"))
+			}
 			command := fmt.Sprintf("python -m pip install %s", strings.Join(packages, " "))
 			logrus.WithField("command", command).Debug("Configure pip install statements")
 			run := root.

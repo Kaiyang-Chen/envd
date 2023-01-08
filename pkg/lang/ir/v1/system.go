@@ -192,6 +192,7 @@ func (g generalGraph) compileSystemPackages(root llb.State) llb.State {
 
 	for _, pkg := range g.SystemPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
+		logrus.Debug(pkg)
 	}
 
 	cacheDir := "/var/cache/apt"

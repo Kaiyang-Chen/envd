@@ -1,0 +1,6 @@
+# syntax=v1
+def build():
+    base(dev=True)
+    install.python()
+    install.python_packages(name=["via","torch"])
+    install.apt_packages(name=["htop"])
