@@ -280,20 +280,9 @@ func (g *generalGraph) compileStarship(root llb.State) llb.State {
 		root,
 		llb.Diff(base, run.Root(), llb.WithCustomName("[internal] starship binary")),
 	}, llb.WithCustomName("[internal] merge starship installation"))
-	sb.Reset()
-	findDir := fileutil.DefaultHomeDir
-	if g.Shell == shellZSH {
-		sb.WriteString("echo \"eval \\\"$(starship init zsh)\\\"\" >> ")
-		sb.WriteString(findDir(".zshrc"))
-	} else if g.Shell == shellBASH {
-		sb.WriteString("echo \"eval \\\"$(starship init bash)\\\"\" >> ")
-		sb.WriteString(findDir(".bashrc"))
-	}
 
-	run = merge.Run(llb.Shlexf(`bash -c "%s"`, sb.String()),
-		llb.WithCustomName("[internal] config starship into rc file"))
+	return merge
 
-	return run.Root()
 }
 
 func (g *generalGraph) compileDevPackages(root llb.State) llb.State {
