@@ -273,7 +273,7 @@ func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 func (g *generalGraph) compileStarship(root llb.State) llb.State {
 	base := g.compileFixBase()
 	var sb strings.Builder
-	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
+	sb.WriteString("curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
 	run := base.Run(llb.Shlexf(`bash -c "%s"`, sb.String()),
 		llb.WithCustomName("[internal] install starship"))
 	merge := llb.Merge([]llb.State{
