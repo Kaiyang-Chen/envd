@@ -26,9 +26,12 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: build image
-        run: |
-          docker buildx build \
-            -t tensorchord/starship:v0.0.1 -f base-images/envd-starship/envd-starship.Dockerfile \
-            --platform linux/amd64,linux/arm64 \
-            --pull --push .
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          file: base-images/envd-starship/envd-starship.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          tags: kyctony/envd-starship:v0.0.2
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
