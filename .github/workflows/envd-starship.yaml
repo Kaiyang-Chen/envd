@@ -31,6 +31,6 @@ jobs:
         run: |
           VERSION=$(git describe --tags --abbrev=0)
           docker buildx build \
-            -t Kaiyang-Chen/envd:${VERSION} -f base-images/envd-starship/envd-starship.Dockerfile \
+            -t kaiyang-chen/envd:${VERSION} -f base-images/envd-starship/envd-starship.Dockerfile \
             --platform linux/amd64,linux/arm64 \
             --pull --push .
