@@ -1,7 +1,50 @@
 # Changelog
 
-## v0.3.6 (2023-01-11)
+## vtest1 (2023-01-19)
 
+ * [6101ae6](https://github.com/tensorchord/envd/commit/6101ae696aaa50a1b21ff3fe5b5b68f6f41f1df6) feat: add ci for starship image release
+
+### Contributors
+
+ * Kaiyang-Chen
+
+## vtest0 (2023-01-19)
+
+ * [6c9be70](https://github.com/tensorchord/envd/commit/6c9be70c73c483b55bb6a13927824c49fd028a69) feat: add ci for starship image release
+ * [f0f8e8c](https://github.com/tensorchord/envd/commit/f0f8e8c02f22a2c467f5a09a44852bd7030ba2a5) feat: add ci for starship image release
+
+### Contributors
+
+ * Kaiyang-Chen
+
+## vtest (2023-01-19)
+
+ * [d5e28ae](https://github.com/tensorchord/envd/commit/d5e28ae5d499d784ad98eb9dc9498061ed063528) feat: add ci for starship image release
+ * [fa35f22](https://github.com/tensorchord/envd/commit/fa35f2247c9b04a14d7dc7cc960aea3151afc187) feat: add ci for starship image release
+ * [3cde7ec](https://github.com/tensorchord/envd/commit/3cde7eccd8b6398913a0c5d8e880e5f32f9586d4) feat: seperate starship installation in frontend v0
+ * [da5c287](https://github.com/tensorchord/envd/commit/da5c287b44d31fc90ec9f14bcd8572484912b037) feat: change starship dockerfile base build image to scratch to reduce size
+ * [9cff0ee](https://github.com/tensorchord/envd/commit/9cff0ee9e088549253c21f36c6fb8ad65455d10e) feat: change starship dockerfile to multi-stage build to reduce size
+ * [1bdd7c9](https://github.com/tensorchord/envd/commit/1bdd7c9e6d1f3d27815b72bcd547fae25dbc7da9) feat: add starship dockerfile
+ * [16bf4cf](https://github.com/tensorchord/envd/commit/16bf4cf0141b24a7c28f545e8d07c76cf5502fb8) feat: separate starship installation by using fixed image
+
+### Contributors
+
+ * Kaiyang-Chen
+
+## vt2 (2023-01-19)
+
+ * [c5f6c21](https://github.com/tensorchord/envd/commit/c5f6c21d0e8954b066234226619c476e7c220cd6) feat: add ci for starship image release
+ * [e5be21b](https://github.com/tensorchord/envd/commit/e5be21b9dfbb8f1cc2f6fc3e2777a6d8a589e0c2) feat: add ci for starship image release
+ * [0dea826](https://github.com/tensorchord/envd/commit/0dea826f015ab00a50999f4e7b3f7db744085eb7) feat: seperate starship installation in frontend v0
+ * [449378b](https://github.com/tensorchord/envd/commit/449378b89bb49a3eb5ed77b16074812dbe09990b) feat: change starship dockerfile base build image to scratch to reduce size
+ * [5ff043f](https://github.com/tensorchord/envd/commit/5ff043f0f827f2e846ce7938cb23f7343470fec7) feat: change starship dockerfile to multi-stage build to reduce size
+ * [4f88882](https://github.com/tensorchord/envd/commit/4f888828a7623e456ff31e59eda36a5cb587428f) feat: add starship dockerfile
+ * [3b4679c](https://github.com/tensorchord/envd/commit/3b4679c58861fe7ea7692dd7793b0cfed37a0d52) feat: separate starship installation by using fixed image
+ * [64b5a0a](https://github.com/tensorchord/envd/commit/64b5a0ab5f7799ba3210bf0afa1c5521d078d963) Optimize the logic of adding entry in wsl (#1414)
+ * [e1bbd56](https://github.com/tensorchord/envd/commit/e1bbd565b266e785ebb05b0e6227161f12bb8b14) feat: support trust the pypi index in v1, add api doc (#1412)
+ * [d1179a6](https://github.com/tensorchord/envd/commit/d1179a6cbaece9d5627fa76dd8a1d464cb253f0e) fix: v1 gid on darwin (#1411)
+ * [c0b88a9](https://github.com/tensorchord/envd/commit/c0b88a969bebde216d4cc63cbafd46772b258749) fix: create a legal container env name from cur dir (#1406)
+ * [47b4dba](https://github.com/tensorchord/envd/commit/47b4dba83d036d3669afb9c44ed8a9f9f5028dd1) fix: julia v1 test (#1408)
  * [52d94bb](https://github.com/tensorchord/envd/commit/52d94bb686f88111b678c8b5e39119780f190986) Intial e2e test for julia environment (#1401)
  * [7916dbb](https://github.com/tensorchord/envd/commit/7916dbb7f83fab6b4f4f2233ddbc7072234e92bb) Support Julia environment and Julia package installation (#1400)
  * [e7cabe6](https://github.com/tensorchord/envd/commit/e7cabe6e01615ba49d18acba3884c4371d22e782) feat(lang/py): add trust for pip_index (#1395)
@@ -16,39 +59,8 @@
  * [51b586e](https://github.com/tensorchord/envd/commit/51b586e4a143fb90562e81c4271d6abdb922bce6) fix: add conda&python path for non-conda mode (#1376)
  * [754b6c3](https://github.com/tensorchord/envd/commit/754b6c3e773437ee59b7eadfdcd850c8610ef9eb) fix: change to dynamic PATH (#1375)
  * [a218dbc](https://github.com/tensorchord/envd/commit/a218dbc2ea98fc50599b5260daa73234be424334) fix(CLI): Remove image list in destroy (#1373)
-
-### Contributors
-
- * Ce Gao
- * Keming
- * Weixiao Huang
- * dependabot[bot]
- * x0oo0x
-
-## v0.3.5 (2023-01-03)
-
  * [a18c880](https://github.com/tensorchord/envd/commit/a18c8801961f7aa44a8f534ee1323b3588fd8be3) fix: Update rstudio server (#1370)
-
-### Contributors
-
- * Ce Gao
-
-## v0.3.4 (2023-01-03)
-
  * [38990c3](https://github.com/tensorchord/envd/commit/38990c31baece96fba182f4913686332de95e309) fix: Remove libssl1.1 (#1368)
-
-### Contributors
-
- * Ce Gao
-
-## v0.3.3 (2023-01-03)
-
-
-### Contributors
-
-
-## v0.3.2 (2023-01-03)
-
  * [095237d](https://github.com/tensorchord/envd/commit/095237dee602eb76dedf9041370173eee367d467) fix: fix nil pointer dereference when exiting shell (#1364)
  * [aae5e27](https://github.com/tensorchord/envd/commit/aae5e27feaa06436fa81c3dc414b28b6b7e21a3b) chore(deps): bump github.com/mattn/go-isatty from 0.0.16 to 0.0.17 (#1361)
  * [b0b5d71](https://github.com/tensorchord/envd/commit/b0b5d71ccb463a7e26e6f3f0cf2ce5d094731367) fix: remove duplicated config and fix Dockerfile pattern (#1362)
@@ -66,10 +78,14 @@
 ### Contributors
 
  * Bingtan Lu
+ * Ce Gao
+ * Kaiyang-Chen
  * Keming
+ * Weixiao Huang
  * Zhizhen He
  * cutecutecat
  * dependabot[bot]
+ * li mengyang
  * x0oo0x
  * xing0821
  * xxchan
