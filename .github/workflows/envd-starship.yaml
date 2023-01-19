@@ -29,8 +29,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
       - name: build image
         run: |
-          VERSION=$(git describe --tags --abbrev=0)
           docker buildx build \
-            -t kaiyang-chen/envd:${VERSION} -f base-images/envd-starship/envd-starship.Dockerfile \
+            -t kyctony/envd-starship:v0.0.1 -f base-images/envd-starship/envd-starship.Dockerfile \
             --platform linux/amd64,linux/arm64 \
             --pull --push .
